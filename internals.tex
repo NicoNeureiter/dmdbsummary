@@ -1,0 +1,92 @@
+% ------------------------------------------------------------------------------------------------ %
+% DATABASE INTERNALS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\section{Database Internals}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DATABASE OPTIMIZATIONS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Database Optimizations}
+
+% \begin{itemize}
+% \item The \emph{query processor} uses efficient algorithms for SQL operators and optimizes the database by ordering the operators, semanticly rewritings the queries and parallel execution.
+% \item The \emph{storage manager} is responsible for the layout of the data on the backend storage, manages the buffer and caches and enforces load and admission control.
+% \end{itemize}
+
+Many DBMS tasks, like load control and buffer management, are also carried out by the operating system. However the database has intimate knowledge of the workload an can predict the pattern of a query. In contrast, the operating system does generic optimizations. Sometimes the operating system overrides DBMS optimizations.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% STORAGE HIERARCHY
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Storage Hierarchy}
+
+
+The storage of a database is organized in a hierarchy; different media ar combined to mimic one ideal storage. Higher layers of the hierarchy \textit{buffer} data of lower layers by exploiting spatial and temporal locality of applications.
+
+Furthermore the storage system can be distributed.
+
+
+
+% ------------------------------------------------------------------------------------------------ %
+% BUFFER MANAGEMENT
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Buffer Management}
+
+A \emph{buffer} is used to minimize disk accesses; pages are kept in main memory as long as possible. The buffer \emph{replacement policy} defines which frame is chosen for replacement. Depending on the \emph{access pattern} (sequential, hierarchical, random, cyclic) the policy can have a big impact on the number of I/O operations.
+
+A page that is requested many times can be pinned by increasing the \emph{pin count}. A page is a candidate for replacement if it is unpinned, i.e. the pin count is zero.
+
+
+
+% ------------------------------------------------------------------------------------------------ %
+% LEAST RECENTLY USED POLICY
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Least Recently Used}
+
+For each page in the puffer pool, the time of the last unpinning is kept track of. The \emph{least recently used (LRU)} policy replaces the page with the oldest time.
+
+\begin{note}
+However, for sequential flooding ($1,2,\ldots,n,1,2,\ldots$) the most recently used policy works better.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% CLOCK REPLACEMENT
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Clock Replacement}
+
+The \emph{clock replacement} policy is an approximation of LRU. It arrenges the frames into a cycle and stores a \emph{reference bit} per page (One can think of this as a second chance bit). When the pin count of a page is reduced to zero, the reference bit is turned on.
+
+When a replacement is necessary, the policy loops through the pages in the cycle and
+\begin{itemize}
+\item if the pin count of the page is zero and the reference bit is on, the reference bit is turned off and
+\item if the pincount is zero and the reference bit is off, the page is chosen for replacement.
+\end{itemize}
+
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DATA MANAGER
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Data Manager}
+
+\todo
+
+
+% ------------------------------------------------------------------------------------------------ %

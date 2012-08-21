@@ -1,0 +1,74 @@
+% ------------------------------------------------------------------------------------------------ %
+% SECURITY
+% ------------------------------------------------------------------------------------------------ %
+
+
+\section{Database Security}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% SECURITY TASKS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Security Tasks}
+
+There are three kinds of security mechanisms in a DBMS:
+\begin{itemize}
+\item \emph{Authentication:} Verifying the identification of a user.
+\item \emph{Authorization:} Checking the access privileges.
+\item \emph{Auditing:} Looking for violations (in the past).
+\end{itemize}
+Data security consists of confidentality and integrity.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DISCRETIONARY ACCESS CONTROL
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Discretionary Access Controls}
+
+Access rules of \emph{discretionary acces controls (DAC)} assign access rights $t$ for an object $o$ to a subject $s$. Formally, access rules are quintuples $(o,s,t,p,f)$, where
+\begin{itemize}
+\item $o \in O$ and $O$ is the set of \emph{objects} (e.g. tables, tuples, attributes),
+\item $s \in S$ and $S$ is the set of \emph{subjects} (e.g. users, processes, applications),
+\item $t \in T$ and $T$ is the set of \emph{acces rights} (e.g. read, write, delete),
+\item $p$ is a predicate (e.g. level = `c4') and
+\item $f$ is a boolean value specifying, whether $s$ may grant the privilege $(o,t,p)$ to another subject $s' \in S$.
+\end{itemize}
+
+A simple way to store the access rules is a so called acces matrix. Other ways to control accesses are views or query rewriting.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% ACCESS CONTRONL IN SQL
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Access Control in SQL}
+
+
+\begin{lstlisting}[language=sql,morekeywords={to}]
+grant update (id, name, semester)
+   on student
+   to peter;
+\end{lstlisting}
+
+\begin{lstlisting}[language=sql,morekeywords={to}]
+create view first_semester as
+   select *
+   from student
+   where semester = 1;
+grant select
+   on first_semester
+   to tutor;
+\end{lstlisting}
+
+Personal records can be protected by aggregation.
+
+\clearpage
+
+
+
+% ------------------------------------------------------------------------------------------------ %

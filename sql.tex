@@ -1,0 +1,168 @@
+% ------------------------------------------------------------------------------------------------ %
+% SQL
+% ------------------------------------------------------------------------------------------------ %
+
+
+\section{SQL}
+
+The language \emph{SQL (Structured Query Language)} is designed for managing data in relational DMBS. It is based upon relational algebra and tuple relational calculus. SQL is a family of standards:
+
+\begin{itemize}
+\item Data definition language (DDL)
+\item Data mnipulation language (DML)
+\item Query Language
+\end{itemize}
+
+\begin{note}
+In SQL relations are referred to as tables and may contain duplicates.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DATA TYPES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Data Types}
+
+Some of SQL's data types are:
+\begin{itemize}
+\item \emph{char($n$):} strings of length $n$, padded with spaces.
+\item \emph{varchar($n$):} strings of variable length with a maximum size of $n$ characters.
+\item \emph{integer:} for interger values.
+\item \emph{numeric($p$,$s$):} numbers with $p-s$ digits before the decimal and $s$ digits after the decimal.
+\item \emph{blob, raw}: large binaries.
+\item \emph{clob}: large string values.
+\item \emph{date}: dates.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DATA DEFINITION LANGUAGE
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Data Definition Language}
+
+A \emph{data definition language (DDL)} is a syntax for defining or modifying data structures, especially database schemas. The following SQL statement illustrates, how a new table is created:
+\begin{lstlisting}[language=sql]
+create table student
+  (id   integer     primary key,
+   name varchar(20) not null),
+   age  integer;
+\end{lstlisting}
+
+Columns of an existing table can be added and altered:
+\begin{lstlisting}[language=sql]
+alter table student
+   add column semester integer;
+alter table student
+   alter column name varchar(30);
+\end{lstlisting}
+
+Similarly, a column is removed with \lstinline[language=sql]{drop column}. Indexes is created and deleted like this:
+
+\begin{lstlisting}[language=sql]
+create index my_index on
+   student(name, age);
+drop index my_index;
+\end{lstlisting}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DATA MANIPULATION LANGUAGE
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Data Manipulation Language}
+
+A \emph{data manipulation language (DML)} is used to insert, update and delete tuples:
+\begin{lstlisting}[language=sql]
+insert into student (id, name)
+   values (123, 'L. Skywalker');
+update student
+   set semester = semester+1;
+delete student
+   where age < 13;
+\end{lstlisting}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% QUERY
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Queries}
+
+
+\begin{lstlisting}[language=sql]
+select [distinct] columns
+   from tablename [as alias]
+   [where condition]
+   [group by (attribute)+]
+   [having condition]
+   [order by (attribute [asc|desc])+]
+\end{lstlisting}
+
+\begin{itemize}
+\item The \emph{distinct} keywords eliminates all duplicate tuples.
+\item Results are sorted using the \emph{order by} key words.
+\end{itemize}
+
+% ------------------------------------------------------------------------------------------------ %
+
+
+\begin{center}
+\begin{tabular}{|p{4em}|p{4em}|}\hline
+$v$ & \bf not $v$ \\\hline
+true       & false   \\
+unknown    & unknown \\
+false      & true    \\\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|p{4em}|p{4em}p{4em}p{4em}|}\hline
+\bf and & true    & unknown & false   \\\hline
+true    & true    & unknown & false   \\
+unknown & unknown & unknown & false   \\
+false   & false   & false   & false   \\\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|p{4em}|p{4em}p{4em}p{4em}|}\hline
+\bf or  & true    & unknown & false   \\\hline
+true    & true    & true    & true    \\
+unknown & true    & unknown & unknown \\
+false   & true    & unknown & false   \\\hline
+\end{tabular}
+\end{center}
+
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Isolation in SQL92}
+
+Isolation in a database determines how and when changes of a transaction becom visible for other transactions.
+
+\begin{lstlisting}[morekeywords={set,transaction,isolation,level,diagnostic,size}]
+set transaction
+   [read only, | read write,]
+   [isolation level
+      read uncommited, |
+      read commited,   |
+      repeatable read, |
+      serializable,]
+   [diagnostic size ...,]
+\end{lstlisting}
+
+\begin{itemize}
+\item \emph{Read uncommited:} This is the lowest level of isolation and is only allowed for read only transactions. Reads do not need a shared lock and are not hindered by exclusive locks.
+\item \emph{Read commited:} Transactions only read commited versions of objects. However, one transaction may read different versions of an object.
+\item \emph{Repeatable read} Reading different versions of the same object is prevented, but phantoms can still happen.
+\item \emph{Serializable:} Full isolation is guaranteed.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %

@@ -1,0 +1,280 @@
+% ------------------------------------------------------------------------------------------------ %
+% ENTITY RELATIONSHIP MODEL
+% ------------------------------------------------------------------------------------------------ %
+
+
+\section{Entity Relationship Model}
+
+The \emph{entity relationship model} is a conceptual data model that is used to model the structure of information from the user's point of view.
+
+
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Building Blocks of an ER Model}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% ENTITIES AND ATTRIBUTES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Entities and Attributes}
+
+An \emph{entity} may be defined as an object that is recognized as being capable of an independent existence and can be uniquely identified. Entities can be thought of as nouns.
+
+Similar entities are abstracted as entity types. Entity types are graphically represented by rectangles containing the name of the entity type.
+
+An entity is characterized by one or more \emph{attributes}. Every entity (unless it is a weak entity) must have a minimal set of uniquely identifying attributes, which is called the entity's \emph{key}. Attributes that are part of the key are underlined.
+
+\begin{example}
+In the ER model depicted in figure \ref{fig_er_model} \textit{student} and \textit{lecture} are entities. \textit{Legi} (key of student), \textit{name}, \textit{semester}, \textit{number} (key of lecture), \textit{title} and \textit{credits} are attributes.
+\end{example}
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}[auto]
+	\erentity{student}{0cm,3cm}{student}
+	\erattribute{id}{3cm,3.7cm}{\underline{id}}
+	\erattribute{name}{3cm,3cm}{name}
+	\erattribute{semester}{3cm,2.3cm}{semester}
+	
+	\erentity{lecture}{0cm,0cm}{lecture}
+	\erattribute{number}{3cm,0.7cm}{\underline{number}}
+	\erattribute{title}{3cm,0cm}{title}
+	\erattribute{credits}{3cm,-0.7cm}{credits}
+	
+	\errelation{attends}{0cm,1.5cm}{attends}
+	
+	\path (student) edge node {attendant} (attends);
+	\path (student) edge (id);
+	\path (student) edge (name);
+	\path (student) edge (semester);
+	\path (attends) edge node {course} (lecture);
+	\path (lecture) edge (number);
+	\path (lecture) edge (title);
+	\path (lecture) edge (credits);
+\end{tikzpicture}
+\end{center}
+\caption[Simple ER-Model]{Two related entities.}
+\label{fig_er_model}
+\end{figure}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% RELATIONSHIPS AND ROLES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Relationships and Roles}
+
+A \emph{relationship} captures how entities are related to one another and may be characterized by zero, one or more attributes. Relationships can be thought of as verbs, linking two or more nouns. They are graphically represented by a diamond shape with the name of the relationship inside.
+
+Optionally, \emph{roles} are used to describe how an entity is involved in the relationship.
+
+\begin{example}
+In the ER model depicted in figure \ref{fig_er_model} \textit{attends} is a relationship and \textit{attendant} and \textit{course} are roles.
+\end{example}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% WEAK ENTITIES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Weak Entities}
+
+An entity that cannot be uniquely identified by its attributes alone is called a \emph{weak entity}. To create a key it must use its attributes in conjunction with the key of an entity it is related to.
+
+\begin{example}
+Since the combination of room number and level is only unique within a building, the building's name is added to the key of room (see figure \ref{fig_weak_entity}).
+\end{example}
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}[auto]
+	\erweakentity{room}{0cm,0cm}{room}
+	\erentity{building}{5cm,0cm}{building}
+	\erweakrelation{located}{2.5cm,0cm}{located}
+	
+	\erattribute{level}{-1cm,1.5cm}{\underline{level}}
+	\erattribute{number}{1cm,1.5cm}{\underline{number}}
+	\erattribute{name}{5cm,1.5cm}{\underline{name}}
+	
+	\path (located) edge (building);
+	\path (room) edge [double distance=0.5mm] (located);
+	\path (room) edge (number);
+	\path (room) edge (level);
+	\path (building) edge (name);
+\end{tikzpicture}
+\end{center}
+\caption[Weak Entity]{An example of a weak entity.}
+\label{fig_weak_entity}
+\end{figure}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% CHARACTERIZATION OF A RELATIONSHIP
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Characterization of Relationships}
+
+A relationship $R$ between entities $E_1, E_2, \ldots, E_n$ may be considered as a relationship in the mathematical sense:
+\[ \begin{array}{rcl}
+R & \subseteq & E_1 \times E_2 \times \ldots \times E_n
+\end{array} \]
+The \emph{degree} of a relationship is given by the number of entity types $n$. In practice, most of the relationships are binary.
+
+% \begin{note}
+% The Cartesian product is defined differently from the one in set theory. The product of an $n$-tuple by an $m$-tuple is flattened into an $(n+m)$-tuple, i.e. $R \times S = \{ (r_1, \ldots, r_n, s_1, \ldots, s_m) \mid (r_1, \ldots, r_n) \in R, (s_1, \ldots, s_m) \in S$.
+% \end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% CARDINALITIES OF A BINARY RELATIONSHIP
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Cardinalities of Binary Relationships}
+
+For binary relationships $R \subseteq E_1 \times E_2$ there are three basic \emph{cardinalities}:
+
+\begin{itemize}
+\item $R$ is a \emph{1:1 relationship} if for every $e_1 \in E_1$ there is at most one $e_2 \in E_2$ such that $(e_1,e_2) \in R$ and vice versa.
+\item $R$ is a \emph{1:N relationship} if for every $e_2 \in E_2$ there is at most one $e_1 \in E_1$ such that $(e_1,e_2) \in R$. A single element of $E_1$ may be related to multiple elements of $E_2$.
+%\item $R$ is a \emph{N:1 relationship} if for every $e_1 \in E_1$ there is at most one $e_2 \in E_2$ such that $(e_1,e_2) \in R$. A single element of $E_2$ may be related to multiple elements of $E_1$.
+\item $R$ is a \emph{N:M relationship} if there are no constraints.
+\end{itemize}
+
+\begin{note}
+Cardinalities are integrity constraints that need hold in the world that is modeled.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Cardinalities of n-ary Relationships]{Cardinalities of $n$-ary Relationships}
+
+The concept of cardinalities can be extended to $n$-ary relationships $R \subseteq E_1 \times E_2 \times \ldots \times E_n$. A ``$1$'' at the entity $E_k$ for some $k \in \{1,\ldots,n\}$ (like in figure \ref{fig_nary_cardinalities}) states that the relation $R$ defines a partial function
+\[ \begin{array}{rclcl}
+R & : & E_1 \times \ldots \times E_{k-1} \times E_{k+1} \times \ldots \times E_n & \rightarrow & E_k.
+\end{array} \]
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}[auto]
+	\erentity{a}{0cm,1.6cm}{$E_1$}
+	\erentity{b}{0cm,0.4cm}{$E_{k-1}$}
+	\node () at (0cm,1.1cm) {$\vdots$};
+
+	\erentity{c}{0cm,-1.6cm}{$E_{n}$}
+	\erentity{d}{0cm,-0.4cm}{$E_{k+1}$}
+	\node () at (0cm,-0.9cm) {$\vdots$};
+
+	\errelation{r}{3cm,0cm}{$R$}
+
+	\erentity{x}{6cm,0cm}{$E_k$}
+	
+	\path [pos=0.4] (a) edge node {$N$} (r);
+	\path [pos=0.2] (b) edge node {$M$} (r);
+	\path [pos=0.8] (r) edge node {$P$} (d);
+	\path [pos=0.6] (r) edge node {$Q$} (c);
+	\path (r) edge node {$1$} (x);
+\end{tikzpicture}
+\end{center}
+\caption[Cardinalities of n-ary Relationships]{Cardinalities of $n$-ary relationships.}
+\label{fig_nary_cardinalities}
+\end{figure}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% MIN MAX NOTATION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[(min,max)-Notation]{$(min,max)$-Notation}
+
+The \emph{$(min,max)$-notation} is another formalism to characterzie relationships:
+
+For every entity $E_i$ of a relationship $R \subseteq E_1 \times E_2 \times \ldots \times E_n$, a pair $(min_i,max_i)$ of numbers is specified. For all $e_i  \in E_i$ at least $min_i$ records $(\ldots,e_i,\ldots)$ exist in $R$ and at most $max_i$ records $(\ldots,e_i,\ldots)$ exist in $R$. Corner cases are:
+\begin{itemize}
+\item If an entity need not participate in the relationship the value of $min$ is set to $0$.
+\item If a single entity may participate arbitrary many times in the relationship then $max$ is replaced with $\ast$.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% GENERALIZATION
+% ------------------------------------------------------------------------------------------------ %
+
+\subsection{Generalization}
+
+In a conceptual model \emph{generalization} is used to obtain a more natural and well arranged structure of entities. Properties (attributes and relationships) of similar entity types are ``factorized'' and assigned to a common supertype.  Remaining properties that cannot be ``factorized'' are assigned to the respective subtype.
+
+A subtype specializes its supertype. A supertype generalizes its subtypes. Entities (instances) of a subtype are implicitly considered as entities of the supertype too.
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}[>=latex']
+\erentity{employee}{0cm,2cm}{employee}
+\erattribute{number}{2.5cm,2.35cm}{\underline{number}}
+\erattribute{name}{2.5cm,1.65cm}{name}
+\erisa{isa}{0cm,0.8cm}
+\erentity{assistant}{-2.5cm,0cm}{assistant}
+\erattribute{area}{-2.5cm,0.95cm}{area}
+\erentity{professor}{2.5cm,0cm}{professor}
+\erattribute{office}{2.5cm,0.95cm}{room}
+\path (employee) edge (number);
+\path (employee) edge (name);
+\path [->] (isa) edge (employee);
+\path [->] (assistant) edge (isa);
+\path [->] (professor) edge (isa);
+\path (assistant) edge (area);
+\path (professor) edge (office);
+\end{tikzpicture}
+\end{center}
+\caption[Generalization]{Generalization of employees of a university.}
+\end{figure}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% AGGREGATION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Aggregation}
+
+\todo
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}
+\erentity{c1}{-1.5cm,0cm}{frame}
+\erentity{c2}{1.5cm,0cm}{wheel}
+\errelation{partof1}{-1.5cm,1.2cm}{part-of}
+\errelation{partof2}{1.5cm,1.2cm}{part-of}
+\erentity{p}{0cm,2.4cm}{bicycle}
+\path (c1) edge (partof1);
+\path (c2) edge (partof2);
+\path (p) edge (partof1);
+\path (p) edge (partof2);
+\end{tikzpicture}
+\end{center}
+\caption[Aggregation]{Parts of a bicycle.}
+\end{figure}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% CONSOLIDATION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Consolidation}
+
+Often, the world to be modeled is very complex and different views are created by persons who are well versed in a part of this world. These views are generally not disjunct but need to be summarized somehow. This process is called \emph{consolidation}. The resulting schema should be consistent and without redundancy.
+
+
+% ------------------------------------------------------------------------------------------------ %

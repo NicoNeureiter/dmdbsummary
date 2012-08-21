@@ -1,0 +1,114 @@
+% ------------------------------------------------------------------------------------------------ %
+% INTRODUCTION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\section{Introduction}
+\renewcommand{\leftmark}{\oldleftmark}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% MOTIVATION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Motivation}
+
+A \emph{database management system} (DMBS) is used to
+\begin{itemize}
+\item avoid redundancy and inconsistency,
+\item access the data in a declarative manner,
+\item synchronize concurrent data accesses,
+\item recover after a system failure,
+\item guarantee security and privacy and
+\item facilitate reuse of the data.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DATABASE ABSTRACTION LAYERS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Database Abstraction Layers}
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}[>=latex']
+	\node [draw, cylinder, shape border rotate=90, aspect=0.2, minimum width=3cm] (physical) at (0cm,-0.2cm) {physical layer};
+	\node [draw, rectangle, minimum width=3cm, minimum height=0.7cm] (logical) at (0cm,1.5cm) {logical layer};
+	\node [draw, rectangle, minimum height=0.7cm] (view1) at (-2cm,3cm) {view 1};
+	\node [draw, rectangle, minimum height=0.7cm] (view2) at (-0.5cm,3cm) {view 2};
+	\node [draw, rectangle, minimum height=0.7cm] (viewn) at (2cm,3cm) {view $n$};
+	\node (dots) at (0.75cm,3cm) {$\cdots$};
+	\node (phantom) at (0cm,0.15cm) {};
+	\path [->] (phantom) edge (logical);
+	\path (logical) edge (0cm,2.25cm);
+	\path [->] (-2cm,2.25cm) edge (view1);
+	\path [->] (-0.5cm,2.25cm) edge (view2);
+	\path [->] (2cm,2.25cm) edge (viewn);
+	\path (-2cm,2.25cm) edge (2cm,2.25cm);
+\end{tikzpicture}
+\end{center}
+\caption[Database Abstraction Layers]{The three database abstraction layers.}
+\end{figure}
+
+There are three layers of abstraction:
+\begin{itemize}
+\item The \emph{physical layer} determines how to store data.
+\item At the \emph{logical layer} the schema of the database determines which data is stored.
+\item Whereas the schema is an integrated model of the whole information, \emph{views} offer only subsets of this information.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DATA INDEPENDENCE
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Data Independence}
+
+Due to the three layers of abstraction there are two kinds of data independence:
+
+\begin{itemize}
+\item \emph{Physical data independence} is fuilfilled when modifications of the physical data structures do not affect the logical layer.
+\item \emph{Logical data independence} is achieved by hiding smaller changes at the logical layer from the views.
+\end{itemize}
+
+Most of the present databases fulfill physical data independence. Logical data independence can only be guaranteed for minor modifications.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DATA MODELS
+% ------------------------------------------------------------------------------------------------ %
+
+\subsection{Data Modeling}
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}[auto,>=latex']
+	\node[draw, cloud, cloud puffs=15.7, aspect=2] (world) at (0cm,4cm) {mini world};
+	\node[draw, rectangle] (schema) at (0cm,2cm) {\begin{tabular}{c} conceptual schema \\ (ER schema) \end{tabular}};
+	\node[draw, rectangle, minimum width=2.5cm] (schema1) at (-3cm,0cm) {\begin{tabular}{c} relational \\ schema \end{tabular}};
+	\node[draw, rectangle, minimum width=2.5cm] (schema2) at (0cm,0cm) {\begin{tabular}{c} object-oriented \\ schema \end{tabular}};
+	\node[draw, rectangle, minimum width=2.5cm] (schema3) at (3cm,0cm) {\begin{tabular}{c} XML \\ schema \end{tabular}};
+	\path [->] (world) edge (schema);
+	\path [->] (schema) edge (schema1);
+	\path [->] (schema) edge (schema2);
+	\path [->] (schema) edge (schema3);
+	\node () at (3.3cm,3cm) {manual modeling};
+	\node () at (3.3cm,1.2cm) {\begin{tabular}{c} semi-automatic \\ transformation \end{tabular}};
+\end{tikzpicture}
+\end{center}
+\caption[Data Modeling Phases]{Phases of data modeling.}
+\end{figure}
+
+There are three basic categories of models:
+\begin{itemize}
+\item The \emph{conceptual model} is a collection of entities and describes how they relate to each other. It captures the domain to be represented. Commonly used conceptual data models are the entity relationship model and UML.
+\item The \emph{logical model} (schema) is a mapping of the concepts to a concrete logical representation. Some logical data models are the relational data model, the object-oriented data model and XML.
+\item The \emph{physical model} is the implementation in a concrete hardware architecture.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %

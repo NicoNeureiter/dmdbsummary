@@ -1,0 +1,114 @@
+% ------------------------------------------------------------------------------------------------ %
+% REPLICATION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\section{Replication}
+
+Some reasons why \emph{replication} is used are:
+\begin{itemize}
+\item \textbf{Performance:} Location transparency is difficult to achieve in a distributed environment. If everything is local, all accesses should be fast.
+\item \textbf{Fault tolerance:} If a site fails, the data it contains becomes unavailable. By keeping several copies, single site failures should not affect the overall availability.
+\item \textbf{Application type:} To avoid interference, databases have always tried to seperate queries from updates.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% REPLICATION STRATEGIES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Replication Strategies}
+
+There are two basic parameters to select when designing a replication strategy.
+\begin{itemize}
+\item When to propagate the updates: synchronous (eager) or asynchronous (lazy).
+\item Where the updates can take place: primary copy (master) or update everywhere (group).
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% SYNCHRONOUS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Synchronous Replication}
+
+\emph{Synchronous replication} propagates any changes to the data immediately to all existing copies. Moreover, the changes are propagated within the scope of the transaction making the changes. The ACID properties apply to all copy updates.
+
+\begin{itemize}
+\item \textbf{Advantages:} There are no inconsistencies, i.e. all copies are identical. Thus reading the local copy yields the most up to date value. All changes are atomic.
+\item \textbf{Disadvantages:} The execution time and response time are longer, because a transaction has to update all sites.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% ASYNCHRONOUS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Asynchronous Replication}
+
+\emph{Asynchronous replication} first executes the updating transaction on the local copy. Then the changes are propagated to all other copies. While the propagation takes place, the copies are inconsistent.
+
+\begin{itemize}
+\item \textbf{Advantages:} A transaction is always local, i.e. the response time is short.
+\item \textbf{Disadvantages:} There are data inconsistencies. A local read does not always return te most up to date value. Changes to all copies are not guaranteed and the replication is not transparent.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% UPDATE EVERYWHERE
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Update Everywhere}
+
+With an \emph{update everywhere} approach, changes can be initiated at any of the copies. That is, any of the sites which owns a copy can update the value of a data item.
+
+\begin{itemize}
+\item \textbf{Advantages:} Any site can run a transaction and the load is evenly distributed.
+\item \textbf{Disadvantages:} All copies need to be synchronized.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% PRIMARY COPY
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Primary Copy}
+
+With a \emph{primary copy} approach, there is only one copy which can be updated (the master), all others (secondary copies) are updated reflecting the changes to the master.
+
+
+\begin{itemize}
+\item \textbf{Advantages:} No inter-site synchronization is necessary; it takes place at the primary copy. There is always one site that has all the updates.
+\item \textbf{Disadvantages:} The load at the primary copy can be quite large. Reading the local copy may not yield the most up to date value.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% Replication Protocols
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Replication Protocols}
+
+
+% ------------------------------------------------------------------------------------------------ %
+%
+
+
+\subsubsection{Quorum Protocols}
+
+\emph{Quorums}
+
+\subsubsection{Deadlock Problem}
+
+\subsubsection{Reconciliation}
+
+\todo
+
+
+% ------------------------------------------------------------------------------------------------ %

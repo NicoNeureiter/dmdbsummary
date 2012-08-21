@@ -1,0 +1,289 @@
+% ------------------------------------------------------------------------------------------------ %
+% DATA MODELING AND DATABASES
+% ------------------------------------------------------------------------------------------------ %
+% QUERY PROCESSING
+% DATABASE INTERNALS
+% REPLICATION
+% SECURITY
+% SQL
+% CONSTRAINTS
+% r1-r4 recovery
+% ------------------------------------------------------------------------------------------------ %
+
+
+\documentclass[a4paper,twocolumn]{article}
+
+
+\usepackage{geometry}
+
+% font
+\usepackage{cmbright}
+% no indent, but a gap between paragraphs
+\usepackage{parskip}
+
+% headings
+\usepackage{titlesec}
+% header and footer
+\usepackage{fancyhdr}
+
+% mathematical symbols and stuff
+\usepackage{amssymb}
+\usepackage{amsxtra}
+% theorems
+\usepackage{amsthm}
+
+% shiny colors
+\usepackage{color}
+% framed boxes
+\usepackage{framed}
+% fancy graphics
+\usepackage{tikz}
+
+\usepackage[bf]{caption}
+
+\usepackage{listings}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+\usepackage[pdfborder={0 0 0}]{hyperref}
+
+
+% ------------------------------------------------------------------------------------------------ %
+
+
+\geometry{left=10mm,right=10mm,top=25mm,bottom=25mm}
+\setlength{\columnsep}{9mm}
+\setlength{\parskip}{0.3em}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% COLORS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\definecolor{head}{rgb}{0,0,0}
+\definecolor{sepline}{rgb}{0,0,0}
+
+\definecolor{color1}{rgb}{0.10,0.30,0.80}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% HEADINGS
+% ------------------------------------------------------------------------------------------------ %
+
+
+% section
+\titleformat{\section}
+	[display]
+	{\huge\bf\raggedleft} % format
+	{{\fontsize{60}{80}\selectfont\thesection}} % label
+	{0pt} % sep
+	{} % before
+	[] % after
+
+
+% ------------------------------------------------------------------------------------------------ %
+% HEADER AND FOOTER
+% ------------------------------------------------------------------------------------------------ %
+
+	
+\pagestyle{fancy}
+
+% Header
+\fancyhead{}
+\newcommand{\activatehead}{
+	\fancyhead[L]{\uppercase{Data Modeling and Databases}}
+	\fancyhead[R]{\uppercase{\leftmark}}
+	\renewcommand{\headrulewidth}{0.5pt}}
+
+% Footer
+\fancyfoot{}
+\fancyfoot[L]{\color{head}PAGE {\thepage} / \pageref{LastPage}}
+\fancyfoot[R]{\color{head}\uppercase{Jerome Dohrau}}
+
+% Linien
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\headrule}{\hrule width\headwidth height\headrulewidth \vskip-\headrulewidth}
+\renewcommand{\footrulewidth}{0.5pt}
+\renewcommand{\footrule}{\vskip-\footruleskip\vskip-\footrulewidth\hrule width\headwidth height\footrulewidth\vskip\footruleskip}
+
+
+
+
+% ------------------------------------------------------------------------------------------------ %
+
+
+\renewcommand{\phi}{\varphi}
+\renewcommand{\theta}{\vartheta}
+
+\renewcommand{\emph}[1]{\textbf{\color{color1}#1}}
+\newcommand{\todo}{{\color{red}TODO}}
+
+\newcommand{\la}{\leftarrow}
+\newcommand{\ra}{\rightarrow}
+\newcommand{\ramin}{\overset{\bullet}{\ra}}
+\newcommand{\rara}{\ra\!\!\ra}
+\newcommand{\LA}{\Leftarrow}
+\newcommand{\RA}{\Rightarrow}
+\newcommand{\msf}[1]{\mathsf{#1}}
+\newcommand{\mbf}[1]{\mathbf{#1}}
+\newcommand{\mc}[1]{\mathcal{#1}}
+
+\renewcommand{\sp}{\;}
+
+\newcommand{\yes}{$\surd$}
+\newcommand{\no}{$\times$}
+
+\newcommand{\join}{\mathbin{\,\tikz{
+	\draw (0pt,0pt) -- (0pt,5pt);
+	\draw (0pt,0pt) -- (6pt,5pt);
+	\draw (0pt,5pt) -- (6pt,0pt);
+	\draw (6pt,0pt) -- (6pt,5pt);}\,}}
+\newcommand{\leftouterjoin}{\mathbin{\,\tikz{
+	\draw (-2pt,0pt) -- (0pt,0pt) -- (0pt,5pt) -- (-2pt,5pt);
+	\draw (0pt,0pt) -- (6pt,5pt);
+	\draw (0pt,5pt) -- (6pt,0pt);
+	\draw (6pt,0pt) -- (6pt,5pt);}\,}}
+\newcommand{\rightouterjoin}{\mathbin{\,\tikz{
+	\draw (0pt,0pt) -- (0pt,5pt);
+	\draw (0pt,0pt) -- (6pt,5pt);
+	\draw (0pt,5pt) -- (6pt,0pt);
+	\draw (8pt,0pt) -- (6pt,0pt) -- (6pt,5pt) -- (8pt,5pt);}\,}}
+\newcommand{\outerjoin}{\mathbin{\,\tikz{
+	\draw (-2pt,0pt) -- (0pt,0pt) -- (0pt,5pt) -- (-2pt,5pt);
+	\draw (0pt,0pt) -- (6pt,5pt);
+	\draw (0pt,5pt) -- (6pt,0pt);
+	\draw (8pt,0pt) -- (6pt,0pt) -- (6pt,5pt) -- (8pt,5pt);}\,}}
+\newcommand{\leftsemijoin}{\mathbin{\,\tikz{
+	\draw (0pt,0pt) -- (0pt,5pt);
+	\draw (0pt,0pt) -- (6pt,5pt);
+	\draw (0pt,5pt) -- (6pt,0pt);}\,}}
+\newcommand{\rightsemijoin}{\mathbin{\,\tikz{
+	\draw (0pt,0pt) -- (6pt,5pt);
+	\draw (0pt,5pt) -- (6pt,0pt);
+	\draw (6pt,0pt) -- (6pt,5pt);}\,}}
+
+
+% Schusterjungen
+\clubpenalty = 10000
+% Hurenkinder
+\widowpenalty = 10000
+\displaywidowpenalty = 10000
+
+
+% ------------------------------------------------------------------------------------------------ %
+
+
+\newenvironment{definition}[1]
+	{\textbf{#1:}}
+	{}
+
+\newenvironment{shade}
+	{\definecolor{shadecolor}{rgb}{0.95,0.95,0.95}
+	 \begin{shaded}}
+	{\end{shaded}}
+
+\newenvironment{note}
+	{\begin{shade}\textbf{Note:}}
+	{\end{shade}}
+
+\newenvironment{example}
+	{\begin{shade}\textbf{Example:}}
+	{\end{shade}}
+
+% ------------------------------------------------------------------------------------------------ %
+
+\usetikzlibrary{shapes,shadows,arrows,decorations.pathreplacing}
+
+\definecolor{erentity}{rgb}{1.00,0.80,0.20}
+\definecolor{erattribute}{rgb}{1.00,1.00,0.40}
+\definecolor{errelation}{rgb}{0.50,0.80,0.30}
+\definecolor{erisa}{rgb}{0.50,0.50,1.00}
+
+\tikzstyle{erentity}=[rectangle, draw, fill=erentity, minimum height=0.6cm, minimum width=2cm]
+\tikzstyle{erweakentity}=[rectangle, draw, double distance=0.5mm, fill=erentity, minimum height=0.6cm, minimum width=2cm]
+\tikzstyle{erattribute}=[ellipse, draw, fill=erattribute, minimum height=0.5cm, minimum width=1.8cm]
+\tikzstyle{errelation}=[diamond, draw, fill=errelation, minimum height=1cm, minimum width=2cm]
+\tikzstyle{erweakrelation}=[diamond, draw, double distance=0.5mm, fill=errelation, minimum height=1cm, minimum width=2cm]
+\tikzstyle{erisa}=[regular polygon, draw, fill=erisa, regular polygon sides=6, xscale=2, minimum width=0.8cm]
+\tikzstyle{area}=[draw]
+
+\newcommand{\fsmscale}{0.75}
+
+%drop shadow={color=gray,shadow xshift=0.05cm, shadow yshift=-0.05cm}, 
+\newcommand{\fsmstate}[3]{
+	\node [draw, fill=white, circle, minimum width=1.8cm,scale=\fsmscale] (#1) at (#2) {};
+	\node [scale=\fsmscale]() at (#2) {\begin{tabular}{c}#3\end{tabular}};}
+
+\newcommand{\erentity}[3]{
+	\node[erentity] (#1) at (#2) {#3};}
+\newcommand{\erweakentity}[3]{
+	\node[erweakentity] (#1) at (#2) {#3};}
+\newcommand{\erattribute}[3]{
+	\node[erattribute] (#1) at (#2) {};
+	\node (K) at (#2) {#3};}
+\newcommand{\erattributesmall}[3]{
+	\node[erattribute, minimum width=1.2cm, minimum height=0.65cm] (#1) at (#2) {};
+	\node (K) at (#2) {#3};}
+\newcommand{\errelation}[3]{
+	\node[errelation] (#1) at (#2) {};
+	\node (K) at (#2) {#3};}
+\newcommand{\erweakrelation}[3]{
+	\node[erweakrelation] (#1) at (#2) {};
+	\node (K) at (#2) {#3};}
+\newcommand{\erisa}[2]{
+	\node[erisa] (#1) at (#2) {};
+	\node (K) at (#2) {is-a};}
+
+
+% ------------------------------------------------------------------------------------------------ %
+
+\let\oldleftmark\leftmark
+
+\begin{document}
+
+% title
+\twocolumn[
+  \begin{@twocolumnfalse}
+  \begin{center}
+  {\bf\Huge{Data Modeling and Databases}}
+  \end{center}
+  \vspace{4em}
+  {\color{sepline}\hrule}
+  \vspace{2em}
+  \end{@twocolumnfalse}
+  ]
+
+% table of contents
+\setcounter{tocdepth}{3}
+\tableofcontents
+% list of figures
+% \newpage
+\listoffigures
+\renewcommand{\leftmark}{CONTENTS}
+\activatehead
+
+\newcommand{\sectionbreak}{\clearpage}
+
+\input{introduction.tex}
+\input{er_model.tex}
+\input{relational_model.tex}
+\input{relational_design_theory.tex}
+\input{internals.tex}
+\input{query_processing.tex}
+\input{transactions.tex}
+\input{replication.tex}
+\input{security.tex}
+
+\appendix
+
+\input{sql.tex}
+% integrity constriants
+
+\label{LastPage}
+
+\end{document}
+
+
+% ------------------------------------------------------------------------------------------------ %

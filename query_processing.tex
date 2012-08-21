@@ -1,0 +1,200 @@
+% ------------------------------------------------------------------------------------------------ %
+% QUERY PROCESSING
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Query Processing}
+
+
+There are three approaches to process a query:
+\begin{itemize}
+\item Compile a query into machine code. This approach achieves high performance.
+\item Compile a query into relational algebra and interpret the resulting expression. This is easier to debung and has better portability.
+\item Use a hybrid solution.
+\end{itemize}
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}[auto,>=latex']
+	\node [scale=0.75] (n0) at (0cm,3.7cm) {SQL};
+	\node [draw, rectangle, minimum width=2cm] (n1) at (0cm,3cm) {Parser};
+	\node [draw, rectangle, minimum width=2cm] (n2) at (0cm,2cm) {Rewrite};
+	\node [draw, rectangle, minimum width=2cm] (n3) at (0cm,1cm) {Optimizer};
+	\node [draw, rectangle, minimum width=2cm] (n4) at (0cm,0cm) {CodeGen};
+	\node [draw, rectangle, minimum width=2cm] (n5) at (3cm,0cm) {Interpreter};
+	\node [scale=0.75] (n6) at (3cm,3.7cm) {tuples};
+	\draw [->] (n0) -- (n1);
+	\draw [->] (n1) -- node [scale=0.75] {QGM} (n2);
+	\draw [->] (n2) -- node [scale=0.75] {QGM} (n3);
+	\draw [->] (n3) -- node [scale=0.75] {QGM++} (n4);
+	\draw [->] (n4) -- node [scale=0.75,swap] {plan} (n5);
+	\draw [->] (n5) -- (n6);
+	\draw[thick,decorate,decoration={brace,amplitude=4pt}] 
+        (-1.5cm,-0.5cm) -- (-1.5cm,3.5cm) node [pos=0.7,left=0.5cm,rotate=90]{compiler};
+	\draw[thick,decorate,decoration={brace,mirror,amplitude=4pt}] 
+        (4.5cm,-0.5cm) -- (4.5cm,3.5cm) node [pos=0.85,right=0.5cm,rotate=270]{runtime system};
+\end{tikzpicture}
+\end{center}
+\caption[Query Processor]{Query processor.}
+\end{figure}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% PARSER
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Parser}
+
+The \emph{parser} generates a relational algebra tree for each subquery. Then it constructs a \emph{query graph model (QGM)}, a graph of trees, where the nodes are subqueries and the edges represent the relationships between the subqueries.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% QUERY REWRITE
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Query Rewrite}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% QUERY OPTIMIZATION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Query Optimization}
+
+A query optimizer has two tasks: To determine the order of the operators and to determine a suitable algorithm for each operator. A cost model is applied to all alternative planse; the plan with lowest expected cost is selected.
+
+\begin{example}
+Consider the Cartesian product $A \times B \times C$, where $\lvert A \rvert = 1000$ and $\lvert B \rvert = \lvert C \rvert = 1$.
+\begin{itemize}
+\item The cost of computing $(A \times B) \times C$ is $2000$,
+\item whereas the cost of $A \times (B \times C)$ is only 1001.
+\end{itemize}
+\end{example}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% ITERATOR MODEL
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Iterator Model}
+
+The following methods are implemented by each \emph{iterator}:
+\begin{itemize}
+\item \emph{open()} Initialize the internal state; e.g. allocate buffer.
+\item \emph{next()} produces the next tuple of the result.
+\item \emph{close()} releases the buffer etc.
+\end{itemize}
+
+This way, a generic interface for operators is defined. Each operator can be implemented independently.
+
+\begin{note}
+Modern DBMS use a vector model, i.e next() returns a set of tuples.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% ALGORITHMS FOR RELATIONAL ALGEBRA
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Algorithms for Relational Algebra}
+
+There are many algorithms for relational algebra (scan, sort, join, group by, etc.). However, two specific algorithms are described in the following sections.
+
+% ------------------------------------------------------------------------------------------------ %
+% TWO-PHASE EXTERNAL SORT
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Two-Phase External Sort}
+
+If the data (input and result) does not fit into memory, \emph{two-phase external sort} is needed to sort the tuples of a relation.
+
+\begin{enumerate}
+\item Load allocated buffer space with tuples and sort all tuples in the buffer pool. Write the sorted tuples (run) back to disk. Repeat this step, until all tuples are processed.
+\item Use a heap to merge the tuples from all runs.
+\end{enumerate}
+
+Let $n$ be the size of the input in pages and $m$ the size of the buffer in pages. If $m \geq n$, no merge is needed and if $m < \sqrt{n}$ multiple merge phases are necessary.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% HASH JOIN
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Grace Hash Join}
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}[>=latex']
+	\draw (-3.2cm,1cm) rectangle (-2.4cm,3.8cm);
+	\node () at (-2.8,2.4cm) {$R$};
+	\draw (3.2cm,0.7cm) rectangle (2.4cm,4.1cm);
+	\node () at (2.8,2.4cm) {$S$};
+	\foreach \y/\c in {1/1.1,2/2.3,3/3.6} {
+		\draw (-1.6cm,\y cm) rectangle (-0.8cm,\y cm+0.8cm);
+		\node () at (-1.2cm,\y cm+0.4cm) {$R_\y$};
+		\node () at (1.2cm,\c cm) {$S_\y$};
+		\path [->] (-2.4cm,2.4cm) edge (-1.6cm,\y cm+0.4cm);
+		\path [->] (2.4cm,2.4cm) edge (1.6cm,\c cm);
+		\path [->,dashed] (-0.8cm,\y cm+0.4cm) edge (-0.2cm,\y cm+0.15cm);
+		\path [->,dashed] (-0.8cm,\y cm+0.4cm) edge (-0.2cm,\y cm+0.4cm);
+		\path [->,dashed] (-0.8cm,\y cm+0.4cm) edge (-0.2cm,\y cm+0.65cm);
+		\path [->,dashed] (0.8cm,\c cm) edge (0.2cm,\y cm+0.15cm);
+		\path [->,dashed] (0.8cm,\c cm) edge (0.2cm,\y cm+0.4cm);
+		\path [->,dashed] (0.8cm,\c cm) edge (0.2cm,\y cm+0.65cm);
+		\draw (-0.2cm,\y cm) rectangle (0.2cm,\y cm+0.8cm);
+		\foreach \yy in {0.1,0.2,...,0.7} {
+			\draw (-0.2cm,\y cm + \yy cm) -- (0.2cm,\y cm + \yy cm);
+		}
+	}
+	\draw (0.8cm,0.7 cm) rectangle (1.6cm,1.5cm);
+	\draw (0.8cm,1.7cm) rectangle (1.6cm,2.9cm);
+	\draw (0.8cm,3.1cm) rectangle (1.6cm,4.1cm);
+\end{tikzpicture}
+\end{center}
+\caption[Grace Hash Join]{Grace hash join.}
+\label{fig_hashjoin}
+\end{figure}
+
+The \emph{grace hash join} algorithms divides the relations $R$ and $S$ into partitions $R_1,\ldots,R_n$ and $S_1,\ldots,S_n$, using a hasfunction $h$. For all $1 \leq i \leq n$, every tuple $r \in R_i$ can only match tuples $s \in S_i$. Thus a hashtable $H_i$ (with another hash function $h'$) is used to join the tuples in $R_i$ and $S_i$.
+
+\begin{algorithm}
+\caption*{\bf GraceHashJoin($R$,$S$,$\alpha$)}
+\begin{algorithmic}
+\FORALL{tuples $r \in R$}
+	\STATE{add $r$ to $R_{h(r.\alpha)}$}
+\ENDFOR
+\FORALL{tuples $s \in S$}
+	\STATE{add $s$ to $S_{h(s.\alpha)}$}
+\ENDFOR
+\FORALL{partitions $i \in \{1,\ldots,n\}$}
+	\STATE{build hastable $H_i$ for $R_i$}
+	\FORALL{tuples $s \in S_i$}
+		\STATE{probe $H_i$ and output matching tuples}
+	\ENDFOR
+\ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+\begin{note}
+The smaller relation $R$ is partitioned in such a way that every partition $R_i$ fits into main memory. This avoids rescanning the entire relation $S$.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% SORTING VS HASHING
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Sorting vs Hashing}
+
+Both techniques, sorting and hashing, can be used for joins, grou-by etc. They have the same asymptotic complexity (in IO and CPU). However, sorting is more robust, but hashing has a better average case.
+
+
+% ------------------------------------------------------------------------------------------------ %

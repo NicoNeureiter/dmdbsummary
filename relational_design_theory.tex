@@ -1,0 +1,400 @@
+% ------------------------------------------------------------------------------------------------ %
+% RELATIONAL DESIGN THEORY
+% ------------------------------------------------------------------------------------------------ %
+
+
+\section{Relational Design Theory}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% FUNCTIONAL DEPENDENCIES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Functional Dependencies}
+
+A \emph{functional dependency (FD)} is a constraint between two sets of attributes in a relation of a database.
+
+Let $\mc{R}$ be the schema of a relation $R$. A set of attributes \mbox{$\alpha \subseteq \mc{R}$} is said to functionally determine another set of attributes $\beta \subseteq \mc{R}$, if and only if
+\[ \begin{array}{cccc}
+\forall r,t \in R: &
+r.\alpha = t.\alpha
+& \RA &
+r.\beta = t.\beta.
+\end{array}\]
+Such a functional dependency is denoted by
+\[ \alpha \ra \beta \]
+
+\begin{note}
+ $XY \ra Z$ is a sloppy notation for $\{X,Y\}\ra\{Z\}$.
+\end{note}
+
+A functional dependency $\alpha \ra \beta$ is \emph{minimal}, written \mbox{$\alpha \ramin \beta$}, if and only if
+\[ \begin{array}{cc}
+\forall A \in \alpha: & \alpha\setminus\{A\} \not\ra \beta.
+\end{array} \]
+
+A functional dependency $\alpha \ra \beta$ is \emph{trivial}, if $\beta \subseteq \alpha$.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DETERMINING FUNCTIONAL DEPENDENCIES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Armstrong's Axioms and Conclusions}
+\label{armstrongs_axioms}
+
+The three \emph{Armstrong's axioms} are used to infer all the functional dependencies:
+\begin{itemize}
+\item \emph{Reflexivity:} $\beta \subseteq \alpha \RA \alpha \ra \beta$
+\item \emph{Augmentation:} $\alpha \ra \beta \RA \alpha\gamma \ra \beta\gamma$
+\item \emph{Transitivity:} $\alpha \ra \beta \wedge \beta \ra \gamma \RA \alpha \ra \gamma$
+\end{itemize}
+
+The Armstrong axioms are sound and complete. Some other rules that can be concluded from these axioms are:
+\begin{itemize}
+\item \emph{Union rule:} $\alpha \ra \beta \wedge \alpha \ra \gamma \RA \alpha \ra \beta\gamma$
+\item \emph{Decomposition:} $\alpha \ra \beta\gamma \RA \alpha \ra \beta \wedge \alpha \ra \gamma$
+\item \emph{Pseudo transitivity:} $\alpha \ra \gamma \wedge \beta\gamma \ra \delta \RA \alpha\gamma \ra \delta$
+\end{itemize}
+
+\begin{note}
+The closure $F^+$ of a set of functional dependencies $F$ contains all functional dependencies that can be inferred from $F$, using the rules described above.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Closure of Attributes}
+
+The \emph{closure} of a set of attributes $\alpha$, denoted by $\alpha^+$, is the largest set of attributes that is functionally determined by $\alpha$.
+
+The following algorithm takes a set of functional dependencies $F$ and a set of attributes $\alpha$ as input and computes the closure $\alpha^+$ such that $\alpha \ra \alpha^+$:
+
+\begin{algorithm}
+\caption*{\bf AttrClosure($F$,$\alpha$)}
+\begin{algorithmic}
+\STATE{$\alpha^+ := \alpha$}
+\WHILE{$\alpha^+$ has changed}
+	\FORALL{$\beta \ra \gamma \in F$}
+		\IF{$\beta \subseteq \alpha^+$}
+			\STATE{$\alpha^+ := \alpha^+ \cup \gamma$}
+		\ENDIF
+	\ENDFOR
+\ENDWHILE
+\RETURN{$\alpha^+$}
+\end{algorithmic}
+\end{algorithm}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% MINIMAL BASIS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Minimal Basis}
+
+Two set $F$ and $G$ of functional dependencies are equivalent, denoted by $F \equiv G$, if and only if their closures are the same, i.e. $F^+ = G^+$.
+
+$F_c$ is called \emph{minimal basis} of $F$ if and only if:
+\begin{enumerate}
+\item $F_c \equiv F$, i.e. the closure of $F_c$ and $F$ are the same.
+\item There is no functional dependency $\alpha \ra \beta \in F_c$ that contains unnecessary attributes:
+	\begin{enumerate}
+	\item $\forall A \in \alpha : F_c \not\equiv F_c \setminus (\alpha \ra \beta) \cup ((\alpha \setminus \{A\}) \ra \beta)$
+	\item $\forall B \in \beta : F_c \not\equiv F_c \setminus (\alpha \ra \beta) \cup (\alpha \ra (\beta \setminus \{ B \}))$
+	\end{enumerate}
+\item There are no two functional dependencies in $F_c$ with the same left side. This can be achieved by applying the union rule.
+\end{enumerate}
+
+Given a set of functional dependencies $F$ the minimal basis $F_c$ of $F$ is computed as follows:
+\begin{enumerate}
+\item
+	For every $\alpha \ra \beta \in F$ perform a reduction of the left side; i.e. if for an $A \in \alpha$ the condition
+	\[ \beta \subseteq \msf{AttrClosure}(F,\alpha \setminus \{A\}) \]
+	holds, then replace $\alpha \ra \beta$ with $(\alpha\setminus\{A\})\ra\beta$.
+\item
+	For every remaining $\alpha \ra \beta \in F$ perform a reduction of the right side; i.e. if for a $B \in \beta$ the condition
+	\[ B \in \msf{AttrClosure}(F\setminus(\alpha\ra\beta)\cup(\alpha\ra(\beta\setminus\{B\})),\alpha) \]
+	holds, then replace $\alpha \ra \beta$ with $\alpha \ra (\beta\setminus\{B\})$.
+\item Remove all functional dependencies of the form $\alpha \ra \emptyset$.
+\item If there are functional dependencies with the same right side $\alpha \ra \beta_1, \ldots, \alpha \ra \beta_n$, apply the union rule to replace them with a single functional dependency \mbox{$\alpha \ra \cup_{i=1}^n \beta _i$}.
+\end{enumerate}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% MULTIVALUE DEPENDENCIES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Multivalued Dependencies}
+
+Let $\mc{R}$ be the schema of a relation $R$. Furthermore let $\alpha \subseteq \mc{R}$ and $\beta \subseteq \mc{R}$ be two subsets of $\mc{R}$ and $\gamma = \mc{R} \setminus (\alpha \cup \beta)$. The \emph{multivalued dependency (MVD)}
+\[ \alpha \rara \beta \]
+holds, if and only if for all pairs of tuples $t_1$ and $t_2$ in $R$ with $t_1.\alpha = t_2.\alpha$, there exist tuples $t_3$ and $t_4$ in $R$ such that
+\[ \begin{array}{rcrclcl}
+t_1.\alpha & = & t_2.\alpha & = & t_3.\alpha & = & t_4.\alpha \\
+& & t_3.\beta  & = & t_2.\beta  & & \\
+& & t_3.\gamma & = & t_1.\gamma & & \\
+& & t_4.\beta  & = & t_1.\beta  & & \\
+& & t_4.\gamma & = & t_2.\gamma. & & \\
+\end{array} \]
+
+In other words: If there are two tuples with the same $\alpha$-values, their $\beta$-values can be swapped and the resulting tuples have to exist in the relation.
+
+\begin{example} In the following relation $R$, the multivalued dependencies $A \rara B$ and $A \rara C$ hold:
+\[ \begin{array}{|c|c|c|}\hline
+\multicolumn{3}{|c|}{R} \\\hline
+A & B & C \\\hline\hline
+a_1 & b_1 & c_1 \\
+a_1 & b_2 & c_2 \\
+a_1 & b_2 & c_1 \\
+a_1 & b_1 & c_2 \\\hline
+\end{array} \]
+\vspace*{-1em}
+\end{example}
+
+A multivalued dependency $\alpha \rara \beta$ is \emph{trivial}, if and only if $\beta\subseteq\alpha$ or $\beta = \mc{R}\setminus\alpha$.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% PROPERTIES OF MULTIVALUED DEPENDENCIES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Properties of MVD]{Properties of Multivalued Dependencies}
+
+Some rules for multivalued dependencies are:
+\begin{itemize}
+\item \emph{Complement:} $\alpha \rara \beta \RA \alpha \rara \mc{R}\setminus (\alpha \cup \beta)$
+\item \emph{M.v. augmentation:}	$\alpha\rara\beta \wedge \delta\subseteq\gamma \RA \alpha\gamma \rara \beta\delta$
+\item \emph{M.v. transitivity:} $\alpha\rara\beta \wedge \beta\rara\gamma \RA \alpha\rara\gamma\setminus\beta$
+\item \emph{Generalization:} $\alpha\ra\beta \RA \alpha\rara\beta$
+\item \emph{Coalesce:} $\alpha\rara\beta \wedge \gamma\subseteq\beta \wedge \delta\cup\beta=\emptyset \wedge \delta\ra\gamma \RA \alpha\ra \gamma$
+\item \emph{M.v. union:} $\alpha\rara\beta \wedge \alpha \rara\gamma \RA \alpha \rara \beta\gamma$
+\item \emph{Intersection:} $\alpha\rara\beta \wedge \alpha\rara\gamma \RA \alpha \rara \beta \cap \gamma$
+\item \emph{Difference:} $\alpha\rara\beta \wedge \alpha\rara\gamma \RA \alpha\rara\beta\setminus\gamma$
+\end{itemize}
+
+\begin{note}
+The closure $D^+$ of a set of functional and multivalues dependencies $D$ contains all dependencies that can be derived from $D$, using the rules described above and in section \ref{armstrongs_axioms}.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% KEYS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Keys}
+
+Let $\mc{R}$ be the schema of a relation $R$. A set of attributes $\alpha \subseteq \mc{R}$ is a \emph{superkey}, if and only if
+\[
+\alpha \ra \mc{R}.
+\]
+I.e. determines all other attributes in $\mc{R}$. If $\alpha \ramin \mc{R}$ holds, then $\alpha$ is called a \emph{candidate key} of $\mc{R}$.
+
+\begin{note} In order to check whether $\kappa$ is a superkey of $\mc{R}$ with respect to the functional dependencies $F$, the closure \mbox{$\kappa^+ = \msf{AttrClosure}(F,\kappa)$} is determined. $\kappa$ is a superkey if $\kappa^+ = \mc{R}$.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% BAD RELATINAL SCHEMAS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Bad Relational Schemas}
+
+Badly designed schemas may lead to \emph{anomalies}. There are three kinds of anomalies:
+\begin{itemize}
+\item \emph{Update anomaly:} Redundancy may lead to inconsistency when data is updated. This is also a place complexity and performance issue.
+\item \emph{Insert anomaly:} \todo
+\item \emph{Delete anomaly:} \todo
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DECOMPOSITION OF RELATIONS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Decomposition of Relations}
+
+A set of schemas $\{ \mc{R}_1,\mc{R}_2,\ldots,\mc{R}_n \}$ is a \emph{decomposition} of a schema $\mc{R}$, if all attributes are preserved, i.e.
+\[ \begin{array}{rcl}
+\mc{R} & = & \mc{R}_1 \cup \mc{R}_2 \cup \ldots \cup \mc{R}_n.
+\end{array} \]
+
+The corresponding decomposition of a relation $R$ into the set of relations $\{R_1,R_2,\ldots,R_n\}$ is defined as
+\[ \begin{array}{ccc}
+ R_i & := & \pi_{\mc{R}_i}(R) \qquad\text{for $1\leq i \leq n$.}
+\end{array} \]
+
+% ------------------------------------------------------------------------------------------------ %
+% LOSSLESS DECOMPOSITIONS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Lossless Decompositions}
+
+A decomposition of $\mc{R}$ into $\mc{R}_1$ and $\mc{R}_2$ is \emph{lossless}, if
+\[ \begin{array}{rcl}
+R & = & R_1 \join R_2
+\end{array} \]
+holds for every instance $R$ of $\mc{R}$.
+
+A decomposition of $\mc{R}$ with functional dependencies $F_\mc{R}$ into $\mc{R}_1$ and $\mc{R}_2$ is lossless, if it is possible to infer
+\[ (\mc{R}_1\cap\mc{R}_2) \ra \mc{R}_1 \in F_\mc{R}^+
+\quad\text{or}\quad
+(\mc{R}_1\cap\mc{R}_2) \ra \mc{R}_2 \in F_\mc{R}^+. \]
+
+\begin{note}
+This is a sufficient, but not a necessary condition.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% PRESERVATION OF FUNCTIONAL DEPENDENCIES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Preservation of Dependencies}
+
+The decomposition $\{\mc{R}_1,\mc{R}_2,\ldots,\mc{R}_n\}$ of $\mc{R}$ with functional dependencies $F_\mc{R}$ is \emph{dependency preserving} if
+\[ \begin{array}{rcl}
+F_\mc{R} & \equiv & (F_{\mc{R}_1} \cup F_{\mc{R}_2} \cup \ldots \cup F_{\mc{R}_n}),
+\end{array} \]
+where $F_{\mc{R}_i} = \{ \alpha\ra\beta \in F_\mc{R}^+ \mid \alpha \cup \beta \subseteq \mc{R}_i \}$ for $1 \leq i \leq n$.
+
+\todo
+
+
+% ------------------------------------------------------------------------------------------------ %
+% NORMAL FORMS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Normal Forms}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% FIRST NORMAL FORM
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{First Normal Form}
+
+The \emph{first normal form (1NF)} requires that domains contain only atomic values. This holds due to the definition of the relational model.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% SECOND NORMAL FORM
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Second Normal Form}
+
+Let $\kappa_1, \kappa_2, \ldots, \kappa_n$ be the candidate keys of the schema $\mc{R}$ with functional dependencies $F$. The schema $\mc{R}$ is in \emph{second normal form (2NF)}, if and only if
+\[ \kappa_i \ramin A \in F^+ \]
+holds for every $1 \leq i \leq n$ and $A \in \mc{R}\setminus\{\kappa_1\cup\kappa_2\cup\ldots\cup\kappa_n)$. I.e. every non key attribute is minimally dependent on every key.
+
+\begin{note}
+2NF implies 1NF
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% THIRD NORMAL FORM
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Third Normal Form}
+
+A schema $\mc{R}$ is in \emph{third normal form (3NF)}, if for every functional dependency of the form $\alpha \ra A$, with $\alpha \subseteq \mc{R}$ and $A \in \mc{R}$, at least on of the following conditions holds:
+\begin{itemize}
+\item $A \in \alpha$, i.e. the functional dependency is trivial.
+\item The attribute $A$ is contained in a candidate key of $\mc{R}$.
+\item $\alpha$ is a superkey of $\mc{R}$.
+\end{itemize}
+
+\begin{note}
+3NF implies 2NF.
+%The third normal form implies the second normal form.
+\end{note}
+
+The following \emph{synthesis algorithm} takes a schema $\mc{R}$ and a set of functional dependencies $F$ as input and computes a lossless and dependency preserving decomposition $\{\mc{R}_1,\ldots,\mc{R}_n\}$ of $\mc{R}$, such that every $\mc{R}_i$ is in 3NF:
+\begin{enumerate}
+\item
+	Compute the minimal basis $F_c$ of $F$.
+\item
+	For every $\alpha \ra \beta \in F_c$:
+	\begin{enumerate}
+	\item Create a relational schema $\mc{R}_\alpha := \alpha \cup \beta$
+	\item Define $F_\alpha := \{ \alpha' \ra \beta' \in F_c \mid \alpha' \cup \beta' \subseteq \mc{R}_\alpha \}$ to be the functional dependencies of $\mc{R}_\alpha$.
+	\end{enumerate}
+\item
+	If none of the schemas $\mc{R}_\alpha$ contains a candidate key of $\mc{R}$ with respect to $F_c$: Choose a candidate key $\kappa \subseteq \mc{R}$ and define the schema $\mc{R}_\kappa$ with $F_\kappa := \emptyset$.
+\item
+	Eliminate all schemas $\mc{R}_\alpha$ that are contained in another schema $\mc{R}_{\alpha'}$ (i.e. $\mc{R}_\alpha \subseteq \mc{R}_{\alpha'}$).
+\end{enumerate}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% BOYCE-CODD NORMAL FORM
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Boyce-Codd Normal Form}
+\label{bcnf}
+
+A schema $\mc{R}$ is in \emph{Boyce-Codd normal form (BCNF)}, if for every functional dependency $\alpha \ra \beta$, at least one of the following two conditions holds:
+\begin{itemize}
+\item $\beta \subseteq \alpha$, i.e. the functional dependency is trivial.
+\item $\alpha$ is a superkey of $\mc{R}$.
+\end{itemize}
+
+The following \emph{decomposition algorithm} takes a schema $\mc{R}$ as input and computes a lossless decomposition $\{\mc{R}_1,\ldots,\mc{R}_n\}$, such that every $\mc{R}_i$ is in BCNF:
+
+\begin{enumerate}
+\item
+	Start with $Z = \{ \mc{R} \}$.
+\item
+	While there is a schema $\mc{R}_i \in Z$, that is not in BCNF:
+	\begin{enumerate}
+	\item Find a non-trivial functional dependency $\alpha \ra \beta$ for $\mc{R}_i$, such that $\alpha \cap \beta = \emptyset$ and $\alpha \not\ra \mc{R}_i$.
+	\item Decompose $\mc{R}_i$ into $\mc{R}_{i_1} := \alpha \cup \beta$ and $\mc{R}_{i_2} := \mc{R}_i \setminus \beta$.
+	\item Update $Z := (Z \setminus \mc{R}_i) \cup \{ \mc{R}_{i_1}, \mc{R}_{i_2} \}$.
+	\end{enumerate}
+\end{enumerate}
+
+\begin{note}
+The decomposition computed by this algorithm is in general not dependency preserving.
+\end{note}
+
+\begin{note}
+BCNF implies 3NF
+\end{note}
+
+% ------------------------------------------------------------------------------------------------ %
+% FOURTH NORMAL FORM
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Fourth Normal Form}
+
+A schema $\mc{R}$ with the set of dependencies $D$ is in \emph{fourth normal form (4NF)}, if and only if for all $\alpha \rara \beta \in D^+$ at least one of the following conditions holds:
+\begin{itemize}
+\item $\alpha \rara \beta$ is trivial, i.e $\beta \subseteq \alpha$ or $\beta = \mc{R}\setminus\alpha$.
+\item $\alpha$ is a superkey of $\mc{R}$.
+\end{itemize}
+
+\begin{note}
+4NF implies BCNF.
+\end{note}
+
+The decomposition algorithm for 4NF is analogous to the one for BCNF described in section \ref{bcnf}.
+
+
+% ------------------------------------------------------------------------------------------------ %

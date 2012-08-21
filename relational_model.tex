@@ -1,0 +1,566 @@
+% ------------------------------------------------------------------------------------------------ %
+% RELATIONAL MODEL
+% ------------------------------------------------------------------------------------------------ %
+
+
+\section{Relational Model}
+
+\subsection{Definition of a Relational Model}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% MATHEMATICAL FORMALISM
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Mathematical Formalism}
+
+Let $D_1, D_2, \ldots, D_n$ be \emph{domains}. These domains may only contain atomic values (e.g. strings and integers, but no sets). A \emph{relation} $R$ is a subset of the Cartesian product of $n$ domains: 
+\[ \begin{array}{rcl}
+R & \subseteq & D_1 \times D_2 \times \ldots \times D_n
+\end{array} \]
+
+An element of the set $t \in R$ is called a \emph{tuple}. Since a relation is defined as a set the tuples are unordered and there are no duplicates.
+
+\begin{note}
+The domains do not need to be different, i.e. $D_i = D_j$ is possible for $i \neq j$.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DEFINITION OF A SCHEMA
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Definition of a Schema}
+
+A \emph{schema} $\mc{R}$ of a relation $R$, sometimes denoted by $\mbf{sch}(R)$, is a set of \emph{attributes} $\{A_1, \ldots, A_n\}$ that assigns a name to every component of a tuple $t \in R$.
+
+The names of the attributes have to be unique within a relation. As in the ER model a key is a minimal set of attributes that identify each tuple uniquely.
+
+The domain of the attribute $A_i$ is denoted by $\mbf{dom}(A_i)$. Thus, a relation $R$ is a subset of the Cartesian product of the $n$ domains $\mbf{dom}(A_1), \mbf{dom}(A_2), \ldots, \mbf{dom}(A_n)$:
+\[ \begin{array}{rcl}
+R & \subseteq & \mbf{dom}(A_1) \times \mbf{dom}(A_2) \times \ldots \times \mbf{dom}(A_n)
+\end{array} \]
+
+
+\begin{example} An address book can be modeled as a relation
+\[ \begin{array}{rcl}
+\msf{addressbook} & \subseteq & \msf{string \times string \times integer}.
+\end{array}\]
+The schema assigns names to the components of a tuple and makes the relation a lot more readable:
+\[
+\msf{addressbook : \{ [ name:string, address:string, \underline{tel\#:integer}] \}}
+\]
+The square brackets $[\ldots]$ are a tuple constructor and the curly brackets $\{\ldots\}$ indicate that the relationship is a set of tuples.
+\end{example}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% FROM AN ER MODEL TO A RELATIONAL MODEL
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{From an ER Model to a Relational Model}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% RELATIONAL REPRESENTATION OF ENTITY TYPES
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Representation of Entity Types]{Relational Representation of Entity Types}
+
+Every attribute of the entity becomes an attribute of the relation; keys are directly adopted and stay the same.
+
+\begin{note}
+The set of attributes of a weak entity's relational representation also includes the key of the entity it depends on.
+\end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% RELATIONAL REPRESENTATION OF RELATIONSHIPS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Representation of Relationships]{Relational Representation of Relationships}
+
+The relation $R$ representing the abstract $n$-ary relationship depicted in figure \ref{fig_gen_relationship} contains all attributes of the relationship and all key attributes of the entities involved.
+
+\[
+R : \{[
+\underbrace{A_{1,1}, \ldots, A_{1,k_1}}_\text{key of $E_1$}, \ldots
+\underbrace{A_{n,1}, \ldots, A_{n,k_n}}_\text{key of $E_n$},
+\underbrace{A_1^R, \ldots, A_{k_R}^R}_\text{attributes of $R$}
+]\}
+\]
+
+\begin{figure}[htbp]
+\begin{center}
+\begin{tikzpicture}
+
+\erentity{e1}{-1.5cm,1.5cm}{$E_1$}
+\erattributesmall{a11}{-3.5cm,2.7cm}{\underline{$A_{1,1}$}}
+\node () at (-3.5cm,2cm){$\vdots$};
+\erattributesmall{a12}{-3.5cm,1.1cm}{\underline{$A_{1,k_1}$}}
+\erattributesmall{a13}{-3.5cm,0.3cm}{$\cdots$}
+
+\node () at (0cm,1.5cm) {$\cdots$};
+
+\erentity{en}{1.5cm,1.5cm}{$E_n$}
+\erattributesmall{an1}{3.5cm,2.7cm}{\underline{$A_{n,1}$}}
+\node () at (3.5cm,2cm){$\vdots$};
+\erattributesmall{an2}{3.5cm,1.1cm}{\underline{$A_{n,k_1}$}}
+\erattributesmall{an3}{3.5cm,0.3cm}{$\cdots$}
+
+\errelation{r}{0cm,0cm}{$R$}
+\erattributesmall{ar1}{-1.3cm,-1cm}{$A_1^R$}
+\node () at (0cm,-1cm) {$\cdots$};
+\erattributesmall{ark}{1.3cm,-1cm}{$A_{k_R}^R$}
+\path (r) edge (e1);
+\path (e1) edge (a11);
+\path (e1) edge (a12);
+\path (e1) edge (a13);
+\path (r) edge (en);
+\path (en) edge (an1);
+\path (en) edge (an2);
+\path (en) edge (an3);
+\path (r) edge (ar1);
+\path (r) edge (ark);
+\end{tikzpicture}
+\end{center}
+\caption[n-ary Relationship]{Example of a generic $n$-ary relationship.}
+\label{fig_gen_relationship}
+\end{figure}
+
+\begin{example}
+The relationship depicted in figure \ref{fig_er_model} translates to:
+\[
+\msf{attend : \{[\underline{id:integer, number:integer}]\}}
+\]
+Since this is a N:M relationship \textit{id} as well as \textit{number} are part of the key.
+\end{example}
+
+In some situations relations with the same can be summarized. This works relations of 1:1 and 1:N relationships.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% RELATIONAL ALGEBRA
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Relational Algebra}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% SELECTION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Selection]{Selection ($\sigma$)}
+
+A \emph{selection} is a unary operation $\sigma_{A \circ  B}(R)$ or $\sigma_{A \circ v}(R)$, where $R$ is a relation, $A$ and $B$ are attribute names, $v$ is a constant value and $\circ \in \{=,<,\leq,>,\geq,\neq\}$ is a comparison.
+
+The result of the selection $\sigma_{A \circ B}(R)$ contains all tuples in $R$ for which $\circ$ holds between the attributes $A$ and $B$:
+\[ \begin{array}{rcl}
+\sigma_{A \circ B}(R) & = & \{ t \in R \mid t.A \circ t.B \}
+\end{array} \]
+
+The result of the selection $\sigma_{A \Phi v}(R)$ contains all tuples in $R$ for which $\Phi$ holds between the attribute $A$ and the constant value $v$:
+\[ \begin{array}{rcl}
+\sigma_{A \Phi V}(R) & = & \{ t \in R \mid t.A \Phi v \}
+\end{array} \]
+
+A \emph{generalized selection} is a unary operation $\sigma_\phi(R)$, where $R$ is a relation and $\phi$ is a propositional formula that consists of atoms as allowed in the normal selection and the logical operators $\wedge$, $\vee$, and $\neg$. The result of this selection contains all tuples in $R$ for which $\phi$ holds:
+\[ \begin{array}{rcl}
+\sigma_{\phi_1 \wedge \phi_2} & = & \sigma_{\phi_1}(R) \cap \sigma_{\phi_2}(R) \\[0.5em]
+\sigma_{\phi_1 \vee \phi_2} & = & \sigma_{\phi_1}(R) \cup \sigma_{\phi_2}(R) \\[0.5em]
+\sigma_{\neg \phi} & = & R \setminus \sigma_{\phi}(R) 
+\end{array} \]
+
+
+% ------------------------------------------------------------------------------------------------ %
+% PROJECTION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Projection]{Projection ($\pi$)}
+
+The \emph{projection} operator $\pi_{A_1, \ldots, A_n}$ is defined as
+\[ \begin{array}{rcl}
+\pi_{A_1, \ldots, A_n}(R) & = & \{ t[A_1, \ldots, A_n] \mid t \in R \},
+\end{array} \]
+where $t[A_1,\ldots,A_n]$ is the tuple $t$ restricted to the attributes $A_1, \ldots, A_n$.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% CARTESIAN PRODUCT
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Cartesian Product]{Cartesian Product ($\times$)}
+
+The  \emph{Cartesian product} $R \times S$ contains all $|R| \cdot |S|$ possible combinations of tuples in the relations $R$ and $S$:
+\[ \hspace{-0.5em} \begin{array}{ll}
+R \times S & = \\
+\multicolumn{2}{l}{\{ [r_1,\ldots,r_n,s_1,\ldots,s_m] \mid [r_1,\ldots,r_n] \in R, [s_1,\ldots,s_m] \in S \}}
+\end{array} \hspace{-0.5em} \]
+
+\begin{note}
+The Cartesian product is defined differently from the one in set theory. The Cartesian product of an $n$-tuple by an $m$-tuple is flattened into an $(n+m)$-tuple.
+\end{note}
+
+The schema of the Cartesian product $R \times S$ is
+\[ \begin{array}{rclcl}
+\mbf{sch}(R \times S) & = &
+\mbf{sch}(R) \cup \mbf{sch}(S) & = &
+\mc{R} \cup \mc{S}.
+\end{array} \]
+If the attribute $A$ appears in $\mc{R}$ as well as in $\mc{S}$, they are renamed as $R.A$ and $R.B$; otherwise their names would not be unique in $\mc{R} \cup \mc{S}$.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% RENAME
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Rename Operator]{Rename Operator ($\rho$)}
+
+The operator $\rho_{R'}(R)$ \emph{renames} the relation $R$ as $R'$. And the operator $\rho_{A' \la A}$ that renames a single attribute is defined as
+\[ \begin{array}{rcl}
+\rho_{A' \la A}(R) & = & \{t[A' \la A] \mid t \in R\},
+\end{array} \]
+where $t[A' \la A]$ is the tuple $t$ with the attribute $A$ renamed as $A'$.
+
+\begin{example} In some cases renaming is necessary. The following combination of operators returns the name of all persons and the name the persons' fathers:
+\[\pi_{P_1.\msf{name},P_2.\msf{name}}(\sigma_{P_1.\msf{father}=P_2.\msf{id}}(\rho_\msf{P_1}(\msf{person}) \times \rho_\msf{P_2}(\msf{person})))\]
+\end{example}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% SET OPERATIONS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Set Operators]{Set Operators ($\cup$, $\cap$ and $\setminus$)}
+
+Let $R$ and $S$ be two relations with the same schema (i.e. $\mc{R} = \mc{S})$. Just like in set theory, the \emph{union}, \emph{intersection} and \emph{difference} operators are
+\[ \begin{array}{rcl}
+R \cup S & = & \{ t \mid t \in R \vee t \in S \} \\[0.5em]
+R \cap S & = & \{ t \mid t \in R \wedge t \in S \} \\[0.5em]
+R \setminus S & = & \{ t \mid t \in R \wedge t \notin S \}.
+\end{array} \]
+
+% \begin{note} The intersection $R \cup S$ can be expressed by two differences:
+% \[ \begin{array}{rcl}
+% R \cup S & = & R \setminus (R \setminus S)
+% \end{array} \]
+% \end{note}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% JOIN OPERATORS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Join Operators}
+\label{join}
+
+There is a variety of different \emph{join} operators:
+
+\newcommand{\lefttable}{\begin{array}{|c|c|}\hline\multicolumn{2}{|c|}{R} \\\hline A & B \\\hline\hline	a_1 & b_1 \\ a_2 & b_2 \\\hline \end{array}}
+\newcommand{\righttable}{\begin{array}{|c|c|} \hline\multicolumn{2}{|c|}{S} \\\hline B & C \\\hline\hline b_1 & c_1 \\ b_3 & c_2 \\\hline \end{array}}
+
+\begin{itemize}
+\item The \emph{theta join} $R \join_\theta S$, where $\theta$ is an arbitrary join predicate, can be defined as
+	\[ \begin{array}{rcl}
+	R \join_\theta S & = & \sigma_\theta(R \times S).
+	\end{array} \]
+\item The \emph{natural join} of two relations $R$ and $S$ is denoted by $R \join S$. Without loss of generality $R$ is assumed to have $n+k$ attributes $A_1,\ldots,A_n,B_1,\ldots,B_k$ and $S$ the $m+k$ attributes $B_1,\ldots,B_k,C_1,\ldots,C_m$ (where all $A_i$ and $C_j$ are pairwise different). The natural join can be defined as
+	\[ \begin{array}{rcl}
+	R \join S & =  & \pi_{\mc{R} \cup \mc{S}}(\sigma_\theta(R \times S)),
+	\end{array} \]
+	where $\theta \equiv \bigwedge_{i=1}^k R.B_i = S.B_i$.
+	\[
+	\begin{array}{ccccc}
+	\lefttable & \join & \righttable
+	& = &
+	\begin{array}{|c|c|c|} \hline
+	\multicolumn{3}{|c|}{R \join S} \\\hline
+	A & B & C \\\hline\hline
+	a_1 & b_1 & c_1 \\\hline
+	\end{array}
+	\end{array}
+	\]
+\item The \emph{left outer join} $R \leftouterjoin S$ is like the natural join, but all tuples of the left argument's relation $R$ are preserved.
+	\[
+	\begin{array}{ccccc}
+	\lefttable & \leftouterjoin & \righttable
+	& = &
+	\begin{array}{|c|c|c|} \hline
+	\multicolumn{3}{|c|}{R \leftouterjoin S} \\\hline
+	A & B & C \\\hline\hline
+	a_1 & b_1 & c_1 \\
+	a_2 & b_2 & - \\\hline
+	\end{array}
+	\end{array}
+	\]
+\item The \emph{right outer join} $R \rightouterjoin S$ is analogous to the left outer join.
+	\[
+	\begin{array}{ccccc}
+	\lefttable & \rightouterjoin & \righttable
+	& = &
+	\begin{array}{|c|c|c|} \hline
+	\multicolumn{3}{|c|}{R \rightouterjoin S} \\\hline
+	A & B & C \\\hline\hline
+	a_1 & b_1 & c_1 \\
+	- & b_3 & c_2 \\\hline
+	\end{array}
+	\end{array}
+	\]
+\item The \emph{outer join} $\leftouterjoin$ can be defined as
+	\[ \begin{array}{rcl}
+	R \outerjoin S & = & (R \leftouterjoin S) \cup (R \rightouterjoin S).
+	\end{array} \]
+	In this sense the outer join combines the left and right outer join.
+	\[
+	\begin{array}{ccccc}
+	\lefttable & \outerjoin & \righttable
+	& = &
+	\begin{array}{|c|c|c|} \hline
+	\multicolumn{3}{|c|}{R \outerjoin S} \\\hline
+	A & B & C \\\hline\hline
+	a_1 & b_1 & c_1 \\
+	a_2 & b_2 & - \\
+	- & b_3 & c_2 \\\hline
+	\end{array}
+	\end{array}
+	\]
+\item The \emph{left semi join}
+	\[ \begin{array}{rcl}
+	R \leftsemijoin S & = & \pi_\mc{R}(R \join S)
+	\end{array} \]
+	is the natural join of $R$ and $S$ projected onto the attributes of $R$.
+	\[
+	\begin{array}{ccccc}
+	\lefttable & \leftsemijoin & \righttable
+	& = &
+	\begin{array}{|c|c|c|} \hline
+	\multicolumn{2}{|c|}{R \leftsemijoin S} \\\hline
+	A & B \\\hline\hline
+	a_1 & b_1 \\\hline
+	\end{array}
+	\end{array}
+	\]
+\item The \emph{right semi join} $R \rightsemijoin S$ is analogous to the left semi join.
+	\[
+	\begin{array}{ccccc}
+	\lefttable & \rightsemijoin & \righttable
+	& = &
+	\begin{array}{|c|c|c|} \hline
+	\multicolumn{2}{|c|}{R \rightsemijoin S} \\\hline
+	B & C \\\hline\hline
+	b_1 & c_1 \\\hline
+	\end{array}
+	\end{array}
+	\]
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% RELATIONAL DIVISION
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Relational Division]{Relational Division ($\div$)}
+
+Let $R$ and $S$ be two relations such tat $\mc{S} \subseteq \mc{R}$. The result of the \emph{relational division} $R \div S$ consists of the restrictions of tuples in $R$ to $\mc{R} \setminus \mc{S}$, for which it holds that all their combinations with tuples in $S$ are represented in $R$.
+
+\[ \begin{array}{ccccc}
+\begin{array}{|c|c|}\hline
+\multicolumn{2}{|c|}{R} \\\hline
+A & B \\\hline\hline
+a_1 & b_1 \\
+a_1 & b_2 \\
+a_1 & b_3 \\
+a_2 & b_2 \\
+a_2 & b_3 \\\hline
+\end{array}
+& \div &
+\begin{array}{|c|}\hline
+S \\\hline
+B \\\hline\hline
+b_1 \\
+b_2 \\\hline
+\end{array}
+& = &
+\begin{array}{|c|}\hline
+R \div S \\\hline
+A \\\hline\hline
+a_1 \\\hline
+\end{array}
+\end{array} \]
+
+The relational division can be simulated with basic operators as follows:
+\[ \begin{array}{rcl}
+R \div  S & = & \pi_{\mc{R}\setminus\mc{S}}(R) \setminus \pi_{\mc{R}\setminus\mc{S}}((\pi_{\mc{R}\setminus\mc{S}}(R) \times S) \setminus R)
+\end{array} \]
+
+
+% ------------------------------------------------------------------------------------------------ %
+% RELATIONAL CALCULUS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Relational Calculus}
+
+The \emph{relational calculus} is based on the first-order predicate calculus. There are two equally powerful relational calculi:
+
+\begin{itemize}
+\item tuple relational calculus and
+\item domain relational calculus.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% TUPLE RELATIONAL CALCULUS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Tuple Relational Calculus}
+
+Expressions in \emph{tuple relational calculus} are of the form
+\[
+\{ t \mid P(t) \}
+\quad\text{or}\quad
+\{ [t_1.A_1,\ldots,t_n.A_n \mid P(t_1,\ldots,t_n) \}
+,\]
+where $t,t_1,\ldots,t_n$ are tuple variable (note that $t_i=t_j$ is possible for $i\neq j$), $A_1,\ldots,A_n$ are attribute names and $P(t)$ is a predicate formula. Atoms of such a formula are
+\begin{itemize}
+\item $u \in R$, where $u$ is a tuple variable and $R$ is a name of a relation and
+\item $u.A \circ v.B$ or $u.A \circ c$, where $u$ and $v$ are tuple variables, $A$ and $B$ attribute names, $\circ \in \{=,<,\leq,>,\geq,\neq\}$ a comparison and $c$ is a constant.
+\end{itemize}
+
+Formulae are constructed by the following rules:
+\begin{itemize}
+\item
+	All atoms are formulae.
+\item
+	If $P$ is a formula, then $\neg P$ and $(P)$ are formulae too.
+\item
+	If $P_1$ and $P_2$ are formulae, then $P_1 \wedge P_2$, $P_1 \vee P_2$ and $P_1 \RA P_2$ are formulae too.
+\item
+	If $P(t)$ is a formula with a free variable $t$, then
+	\[
+	\forall t \in R(P(t))
+	\qquad\text{and}\qquad
+	\exists t \in R(P(t))
+	\]
+are formulae too; note that the tuple variable $t$ of the quantifications is bound to the relation $R$.
+\end{itemize}
+
+\begin{example} The expression
+\[ \{
+s \mid
+s \in \msf{student} \wedge
+\neg (\exists a \in \msf{attend}(s.\msf{id}=a.\msf{id}))
+\} \]
+lists all students that are attending no lectures.
+\end{example}
+
+
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Safe Expressions in TRC]{Safe Expressions in Tuple Relational Calculus}
+
+Some expressions in tuple relational calculus yield infinite results. An example of such an expression is
+\[ \{ t \mid \neg(t \in R) \}. \]
+
+This is not desirable. An expression is considered \emph{safe} if its result is a subset of the domain of the formula. The domain of a formula is the set of all constants and the relations' values that appear in the formula. The result of a safe expression is always finite.
+
+
+% ------------------------------------------------------------------------------------------------ %
+% DOMAIN RELATIONAL CALCULUS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection{Domain Relational Calculus}
+
+Expressions of \emph{domain relational calculus} are of the form
+\[ \{[v_1,\ldots,v_n] \mid P(v_1,\ldots,v_n) \}, \]
+where each $v_i$ (for $1 \leq i \leq n$) is a domain variable and $P(v_1,\ldots,v_n)$ denotes a predicate over the free variables $v_1,\ldots,v_n$.
+
+Atoms of formulae in domain relational calculus are
+\begin{itemize}
+\item $[w_1,\ldots,w_m] \in R$, where $R$ is an $m$-ary relation and
+\item $x \circ y$ and $x \circ c$, where $x$ and $y$ are domain variables, $c$ is a constant and $\circ \in \{=,<,\leq,>,\geq,\neq\}$ is a comparison.
+\end{itemize}
+
+Formulae are constructed according to the following rules:
+\begin{itemize}
+\item
+	An atom is a formula.
+\item
+	If $P$ is a formula, then $\neg P$ and $(P)$ are formulae too.
+\item
+	If $P_1$ and $P_2$ are formulae, then $P_1 \wedge P_2$, $P_1 \vee P_2$ and $P_1 \RA P_2$ are formulae too.
+\item
+	If $P(v)$ is a formula with a free variable $t$, then
+	\[ \forall v (P(v))
+	\qquad\text{and}\qquad
+	\exists v (P(v)) \]
+	are formulae too.
+\end{itemize}
+
+\begin{example}
+The expression
+\[ \begin{array}{rcl} \{
+[i,n] & \mid & \exists s ([i,n,s] \in \msf{student} \\
+& \wedge & \exists n' ([i,n'] \in \msf{attends} \\
+& \wedge & \exists t,c ([n',t,c] \in \msf{lecture} \\
+& \wedge & c \geq 8 ))) \}
+\end{array} \]
+lists the id and name of all students that attend a lecture with more at least $8$ credits (compare with ER model in figure \ref{fig_er_model}).
+\end{example}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% SAFE EXPRESSIONS IN DOMAIN RELATIONAL CALCULUS
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsubsection[Safe Expressions in DRC]{Safe Expressions in Domain Relational Calculus}
+
+Like in the tuple relational calculus the domain relational calculus allows infinite results:
+\[
+\{ [v_1,\ldots,v_n] \mid \neg([v_1,\ldots,v_n] \in R) \}
+\]
+
+An expression $\{[v_1,\ldots,v_n\mid P(v_1,\ldots,v_n)\}$ is \emph{safe}, if the following conditions hold:
+\begin{itemize}
+\item If the tuple $[v_1,\ldots,v_{i-1},c_i,v_{i+1},\ldots,v_n]$, where $c_i$ is a constant, is contained in the result, then $c_i$ must be contained in the domain of $P$.
+\item Every existentially quantified subformula $\exists v(P'(v))$ may only accept elements of the domain of $P'$. In other words: If $P'(c)$ holds for a constant value, then $c$ is contained in the domain of $P'$.
+\item Every universally quantified subformula $\forall v(P'(v))$ holds, if and only if $P'(v)$ holds for every value in the domain of $P'$. In other words: $P'(c)$ holds for all values $c$ that are not contained in the domain of $P'$.
+\end{itemize}
+
+
+% ------------------------------------------------------------------------------------------------ %
+% CODD'S THEOREM
+% ------------------------------------------------------------------------------------------------ %
+
+
+\subsection{Codd's Theorem}
+
+\emph{Codd's theorem} states that
+\begin{itemize}
+\item relational algebra,
+\item tuple relational calculus restricted to safe expressions and
+\item domain relational calculus restricted to safe expressions
+\end{itemize}
+are precisely equivalent in expressive power. That is, a database query can be formulated in one language if and only if it can be expressed in the others.
+
+Query languages that are equivalent in expressive power to relational algebra are called \emph{relationally complete}.
+
+
+% ------------------------------------------------------------------------------------------------ %
